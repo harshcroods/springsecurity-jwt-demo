@@ -1,0 +1,12 @@
+{"properties": [
+  {
+    "name": "croods.app.jwtSecret",
+    "type": "java.lang.String",
+    "description": "A description for 'croods.app.jwtSecret'"
+  },
+  {
+    "name": "croods.app.jwtExpirationMs",
+    "type": "java.lang.String",
+    "description": "A description for 'croods.app.jwtExpirationMs'"
+  }
+]}
