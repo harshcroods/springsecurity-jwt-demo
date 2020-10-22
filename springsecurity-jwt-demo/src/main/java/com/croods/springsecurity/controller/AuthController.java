@@ -14,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ import com.croods.springsecurity.payload.response.JwtResponse;
 import com.croods.springsecurity.payload.response.MessageResponse;
 import com.croods.springsecurity.repository.RoleRepository;
 import com.croods.springsecurity.repository.UserRepository;
+import com.croods.springsecurity.service.ErrorValidationService;
 
 @CrossOrigin
 @RestController
@@ -52,8 +54,15 @@ public class AuthController {
 	@Autowired
 	private JwtUtils jwtUtils;
 	
+	@Autowired
+	private ErrorValidationService errorService;
+	
 	@PostMapping("/signin")
-	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+	public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest, BindingResult result) {
+		ResponseEntity<?> errorMap = errorService.validationService(result);
+		if (errorMap != null) {
+			return errorMap;
+		}
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 		
@@ -73,7 +82,12 @@ public class AuthController {
 	}
 	
 	@PostMapping("/signup")
-	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+	public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signUpRequest, BindingResult result) {
+		ResponseEntity<?> errorMap = errorService.validationService(result);
+		if (errorMap != null) {
+			return errorMap;
+		}
+
 		if (userRepository.existsByUsername(signUpRequest.getUsername())) {
 			return ResponseEntity
 					.badRequest()
